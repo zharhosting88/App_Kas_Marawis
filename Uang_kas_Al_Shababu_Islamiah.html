@@ -1,0 +1,3525 @@
+<!DOCTYPE html><html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1020">
+<meta name="robots" content="index, follow">
+<meta name="author" content="zharWeb">
+<meta name="description" content="Aplikasi rekap uang kas untuk mencatat kas mingguan, utang, rekap bulanan dan pengeluaran.">
+<meta property="og:title" content="Rekap Kas — zharWeb">
+<meta property="og:description" content="Aplikasi modern untuk mengelola uang kas mingguan, utang, rekap bulanan dan pengeluaran.">
+<meta property="og:type" content="website"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b1020'/%3E%3Cpath d='M25 50h50M50 25v50' stroke='%2360a5fa' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E"><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><title>Rekap Kas — zharWeb</title><style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --bg:#070b14;
+    --card:#101827;
+    --card2:#141e31;
+    --border:rgba(255,255,255,.08);
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --primary:#3b82f6;
+    --primary2:#6366f1;
+    --green:#22c55e;
+    --red:#ef4444;
+    --yellow:#f59e0b;
+    --shadow:0 20px 50px rgba(0,0,0,.3);
+}
+
+body{
+    font-family:Poppins,Inter,sans-serif;
+    background:
+        radial-gradient(circle at top left,rgba(59,130,246,.12),transparent 35%),
+        radial-gradient(circle at bottom right,rgba(99,102,241,.1),transparent 35%),
+        var(--bg);
+    color:var(--text);
+    min-height:100vh;
+}
+
+button,
+input,
+select,
+textarea{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* LOADER */
+
+.loader{
+    position:fixed;
+    inset:0;
+    background:#070b14;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+}
+
+.loader-box{
+    text-align:center;
+}
+
+.loader-icon{
+    width:65px;
+    height:65px;
+    border:4px solid rgba(255,255,255,.08);
+    border-top-color:var(--primary);
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin:auto;
+}
+
+.loader p{
+    margin-top:18px;
+    color:var(--muted);
+    font-size:13px;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg)}
+}
+
+/* LOGIN */
+
+.login-screen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.login-card{
+    width:100%;
+    max-width:430px;
+    padding:32px;
+    background:rgba(16,24,39,.8);
+    border:1px solid var(--border);
+    border-radius:26px;
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(20px);
+    animation:up .5s ease;
+}
+
+.logo{
+    width:65px;
+    height:65px;
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
+    font-size:25px;
+    margin-bottom:20px;
+    box-shadow:0 10px 30px rgba(59,130,246,.3);
+}
+
+.login-card h1{
+    font-size:27px;
+}
+
+.login-card > p{
+    color:var(--muted);
+    font-size:13px;
+    margin:7px 0 25px;
+}
+
+.field{
+    margin-bottom:16px;
+}
+
+.field label{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:7px;
+}
+
+.input-wrap{
+    position:relative;
+}
+
+.input-wrap i{
+    position:absolute;
+    left:15px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#64748b;
+}
+
+.input-wrap input,
+.input-wrap select,
+.input-wrap textarea,
+input,
+select,
+textarea{
+    width:100%;
+    background:#0b1220;
+    border:1px solid var(--border);
+    color:white;
+    border-radius:13px;
+    padding:13px 14px;
+    outline:none;
+    transition:.2s;
+}
+
+.input-wrap input{
+    padding-left:43px;
+}
+
+textarea{
+    min-height:100px;
+    resize:vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(59,130,246,.1);
+}
+
+.btn{
+    border:0;
+    border-radius:13px;
+    padding:12px 16px;
+    color:white;
+    background:#1e293b;
+    transition:.2s;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+}
+
+.btn:hover{
+    transform:translateY(-1px);
+}
+
+.btn-primary{
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
+}
+
+.btn-danger{
+    background:rgba(239,68,68,.12);
+    color:#f87171;
+}
+
+.btn-success{
+    background:rgba(34,197,94,.12);
+    color:#4ade80;
+}
+
+.btn-warning{
+    background:rgba(245,158,11,.12);
+    color:#fbbf24;
+}
+
+.btn-full{
+    width:100%;
+}
+
+.login-info{
+    margin-top:18px;
+    padding:13px;
+    background:rgba(59,130,246,.07);
+    border:1px solid rgba(59,130,246,.15);
+    border-radius:13px;
+    color:#93c5fd;
+    font-size:11px;
+}
+
+/* APP */
+
+.app{
+    display:none;
+}
+
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    width:250px;
+    background:rgba(10,15,27,.94);
+    border-right:1px solid var(--border);
+    padding:22px 14px;
+    z-index:100;
+    backdrop-filter:blur(20px);
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:0 10px 25px;
+    border-bottom:1px solid var(--border);
+}
+
+.brand-logo{
+    width:42px;
+    height:42px;
+    border-radius:13px;
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.brand strong{
+    font-size:15px;
+}
+
+.brand small{
+    display:block;
+    color:var(--muted);
+    font-size:10px;
+}
+
+.nav{
+    margin-top:20px;
+}
+
+.nav button{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#94a3b8;
+    padding:13px 12px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:5px;
+    text-align:left;
+}
+
+.nav button:hover,
+.nav button.active{
+    background:rgba(59,130,246,.12);
+    color:#60a5fa;
+}
+
+.nav button i{
+    width:20px;
+    text-align:center;
+}
+
+.logout{
+    position:absolute;
+    left:14px;
+    right:14px;
+    bottom:20px;
+}
+
+.main{
+    margin-left:250px;
+    min-height:100vh;
+}
+
+.topbar{
+    height:75px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    border-bottom:1px solid var(--border);
+    background:rgba(7,11,20,.7);
+    backdrop-filter:blur(15px);
+    position:sticky;
+    top:0;
+    z-index:50;
+}
+
+.topbar h2{
+    font-size:20px;
+}
+
+.storage-status{
+    font-size:11px;
+    color:#4ade80;
+    display:flex;
+    align-items:center;
+    gap:7px;
+}
+
+.storage-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#22c55e;
+    box-shadow:0 0 10px #22c55e;
+}
+
+.content{
+    padding:28px;
+    max-width:1500px;
+    margin:auto;
+}
+
+.page{
+    display:none;
+    animation:up .3s ease;
+}
+
+.page.active{
+    display:block;
+}
+
+@keyframes up{
+    from{
+        opacity:0;
+        transform:translateY(12px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* STATS */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.stat{
+    padding:20px;
+    border:1px solid var(--border);
+    border-radius:19px;
+    background:rgba(16,24,39,.72);
+    box-shadow:var(--shadow);
+}
+
+.stat-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:17px;
+}
+
+.stat-icon{
+    width:40px;
+    height:40px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(59,130,246,.12);
+    color:#60a5fa;
+}
+
+.stat small{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.stat h3{
+    font-size:22px;
+    margin-top:3px;
+}
+
+/* CARDS */
+
+.card{
+    background:rgba(16,24,39,.75);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:var(--shadow);
+}
+
+.card-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    margin-bottom:18px;
+}
+
+.card-header h3{
+    font-size:16px;
+}
+
+.card-header p{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:3px;
+}
+
+.actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+/* TABLE */
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:650px;
+}
+
+th,
+td{
+    padding:14px 12px;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+    font-size:12px;
+}
+
+th{
+    color:#64748b;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+}
+
+td{
+    color:#cbd5e1;
+}
+
+.actions-cell{
+    display:flex;
+    gap:6px;
+}
+
+.icon-btn{
+    width:34px;
+    height:34px;
+    border:0;
+    border-radius:9px;
+    background:#1e293b;
+    color:#cbd5e1;
+}
+
+.icon-btn.edit{
+    color:#60a5fa;
+}
+
+.icon-btn.delete{
+    color:#f87171;
+}
+
+.icon-btn.success{
+    color:#4ade80;
+}
+
+.badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    border-radius:30px;
+    padding:5px 9px;
+    font-size:10px;
+    font-weight:600;
+}
+
+.badge-lunas{
+    color:#4ade80;
+    background:rgba(34,197,94,.1);
+}
+
+.badge-utang{
+    color:#f87171;
+    background:rgba(239,68,68,.1);
+}
+
+.empty{
+    padding:35px 20px;
+    text-align:center;
+    color:#64748b;
+}
+
+.empty i{
+    font-size:30px;
+    margin-bottom:12px;
+}
+
+.empty p{
+    font-size:12px;
+}
+
+/* WEEKLY */
+
+.week-card{
+    border:1px solid var(--border);
+    border-radius:17px;
+    overflow:hidden;
+    margin-bottom:15px;
+}
+
+.week-head{
+    padding:17px;
+    background:rgba(255,255,255,.025);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+}
+
+.week-title{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.week-number{
+    width:40px;
+    height:40px;
+    border-radius:11px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(59,130,246,.12);
+    color:#60a5fa;
+    font-weight:700;
+}
+
+.week-title h4{
+    font-size:14px;
+}
+
+.week-title small{
+    color:var(--muted);
+    font-size:10px;
+}
+
+.week-body{
+    padding:17px;
+}
+
+.week-summary{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.summary-box{
+    background:#0b1220;
+    border:1px solid var(--border);
+    padding:12px;
+    border-radius:12px;
+}
+
+.summary-box small{
+    color:var(--muted);
+    font-size:9px;
+}
+
+.summary-box strong{
+    display:block;
+    margin-top:3px;
+    font-size:13px;
+}
+
+/* MODAL */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.7);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    z-index:500;
+    backdrop-filter:blur(8px);
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:100%;
+    max-width:520px;
+    max-height:90vh;
+    overflow-y:auto;
+    background:#101827;
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:22px;
+    box-shadow:0 30px 80px rgba(0,0,0,.5);
+    animation:modalIn .25s ease;
+}
+
+@keyframes modalIn{
+    from{
+        opacity:0;
+        transform:scale(.96) translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:scale(1) translateY(0);
+    }
+}
+
+.modal-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.modal-head h3{
+    font-size:17px;
+}
+
+.close{
+    width:35px;
+    height:35px;
+    border:0;
+    border-radius:10px;
+    background:#1e293b;
+    color:#94a3b8;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+
+.full{
+    grid-column:1/-1;
+}
+
+.modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.modal-actions .btn{
+    flex:1;
+}
+
+/* TOAST */
+
+.toast-container{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    z-index:1000;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.toast{
+    min-width:260px;
+    max-width:350px;
+    padding:13px 15px;
+    border-radius:13px;
+    background:#111827;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    animation:toastIn .25s ease;
+    font-size:12px;
+}
+
+.toast i{
+    color:#4ade80;
+}
+
+.toast.error i{
+    color:#f87171;
+}
+
+@keyframes toastIn{
+    from{
+        opacity:0;
+        transform:translateX(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+/* CONFIRM */
+
+.confirm-icon{
+    width:55px;
+    height:55px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(239,68,68,.1);
+    color:#f87171;
+    font-size:22px;
+    margin-bottom:15px;
+}
+
+.confirm-text{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.7;
+}
+
+/* MOBILE */
+
+.mobile-header{
+    display:none;
+}
+
+@media(max-width:1000px){
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:760px){
+
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.3s;
+        width:270px;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .mobile-header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+    }
+
+    .topbar{
+        padding:0 17px;
+    }
+
+    .topbar h2{
+        font-size:17px;
+    }
+
+    .content{
+        padding:18px 14px;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+    }
+
+    .stat{
+        padding:15px;
+    }
+
+    .stat h3{
+        font-size:17px;
+    }
+
+    .stat-icon{
+        width:34px;
+        height:34px;
+    }
+
+    .card{
+        padding:15px;
+        border-radius:17px;
+    }
+
+    .week-summary{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .full{
+        grid-column:auto;
+    }
+
+    .storage-status span{
+        display:none;
+    }
+}
+
+@media(max-width:480px){
+
+    .login-card{
+        padding:24px 18px;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .stat h3{
+        font-size:15px;
+    }
+
+    .stat small{
+        font-size:9px;
+    }
+
+    .card-header{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .week-head{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .actions{
+        width:100%;
+    }
+
+    .actions .btn{
+        flex:1;
+    }
+
+    .toast{
+        min-width:auto;
+        width:calc(100vw - 36px);
+    }
+}
+</style></head><body><!-- LOADER --><div class="loader" id="loader">
+    <div class="loader-box">
+        <div class="loader-icon"></div>
+        <p>Menyiapkan aplikasi...</p>
+    </div>
+</div><!-- LOGIN --><section class="login-screen" id="loginScreen"><div class="login-card">
+
+    <div class="logo">
+        <i class="fa-solid fa-wallet"></i>
+    </div>
+
+    <h1>Rekap Kas</h1>
+    <p>Kelola kas mingguan, utang, pengeluaran dan rekap bulanan.</p>
+
+    <form id="loginForm">
+
+        <div class="field">
+
+            <label>Username</label>
+
+            <div class="input-wrap">
+                <i class="fa-solid fa-user"></i>
+                <input
+                    id="loginUsername"
+                    type="text"
+                    placeholder="Masukkan username"
+                    autocomplete="username"
+                    required
+                >
+            </div>
+
+        </div>
+
+        <div class="field">
+
+            <label>Password</label>
+
+            <div class="input-wrap">
+                <i class="fa-solid fa-lock"></i>
+                <input
+                    id="loginPassword"
+                    type="password"
+                    placeholder="Masukkan password"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+        </div>
+
+        <button class="btn btn-primary btn-full" type="submit">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Masuk
+        </button>
+
+    </form>
+
+    <div class="login-info">
+        <i class="fa-solid fa-circle-info"></i>
+        Login ini berjalan di browser. Data kas disimpan di perangkat menggunakan localStorage.
+    </div>
+
+</div>
+
+</section><!-- APP --><div class="app" id="app"><aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-logo">
+            <i class="fa-solid fa-wallet"></i>
+        </div>
+
+        <div>
+            <strong>Rekap Kas</strong>
+            <small>zharWeb</small>
+        </div>
+
+    </div>
+
+    <nav class="nav">
+
+        <button class="active" data-page="dashboard">
+            <i class="fa-solid fa-chart-pie"></i>
+            Dashboard
+        </button>
+
+        <button data-page="weekly">
+            <i class="fa-solid fa-calendar-week"></i>
+            Kas Mingguan
+        </button>
+
+        <button data-page="debts">
+            <i class="fa-solid fa-user-clock"></i>
+            Nunggak / Utang
+        </button>
+
+        <button data-page="monthly">
+            <i class="fa-solid fa-calendar-days"></i>
+            Rekap Bulanan
+        </button>
+
+        <button data-page="expenses">
+            <i class="fa-solid fa-money-bill-transfer"></i>
+            Pengeluaran
+        </button>
+
+    </nav>
+
+    <button class="btn btn-danger btn-full logout" id="logoutBtn">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Keluar
+    </button>
+
+</aside>
+
+<main class="main">
+
+    <header class="topbar">
+
+        <div class="mobile-header">
+
+            <button class="icon-btn" id="menuBtn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+        </div>
+
+        <h2 id="pageTitle">Dashboard</h2>
+
+        <div class="storage-status">
+            <span class="storage-dot"></span>
+            <span id="storageText">Tersimpan otomatis</span>
+        </div>
+
+    </header>
+
+    <div class="content">
+
+        <!-- DASHBOARD -->
+
+        <section class="page active" id="page-dashboard">
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <div class="stat-head">
+                        <small>Total Saldo</small>
+
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                    </div>
+
+                    <h3 id="statSaldo">Rp0</h3>
+
+                </div>
+
+                <div class="stat">
+
+                    <div class="stat-head">
+                        <small>Total Kas Masuk</small>
+
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </div>
+                    </div>
+
+                    <h3 id="statMasuk">Rp0</h3>
+
+                </div>
+
+                <div class="stat">
+
+                    <div class="stat-head">
+                        <small>Total Utang</small>
+
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-user-clock"></i>
+                        </div>
+                    </div>
+
+                    <h3 id="statUtang">Rp0</h3>
+
+                </div>
+
+                <div class="stat">
+
+                    <div class="stat-head">
+                        <small>Pengeluaran</small>
+
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </div>
+                    </div>
+
+                    <h3 id="statKeluar">Rp0</h3>
+
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>Ringkasan Aplikasi</h3>
+                        <p>Data akan tersimpan otomatis di perangkat ini.</p>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="openWeeklyModal()">
+                        <i class="fa-solid fa-plus"></i>
+                        Tambah Kas
+                    </button>
+
+                </div>
+
+                <div class="week-summary">
+
+                    <div class="summary-box">
+                        <small>Minggu Tercatat</small>
+                        <strong id="dashWeeks">0</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <small>Rekap Bulanan</small>
+                        <strong id="dashMonths">0</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <small>Orang Utang</small>
+                        <strong id="dashDebtors">0</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>Kas Terbaru</h3>
+                        <p>Data kas mingguan terbaru.</p>
+                    </div>
+
+                </div>
+
+                <div id="dashboardRecent"></div>
+
+            </div>
+
+        </section>
+
+        <!-- WEEKLY -->
+
+        <section class="page" id="page-weekly">
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>Kas Mingguan</h3>
+                        <p>Setiap bulan terdiri dari maksimal 4 minggu.</p>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="openWeeklyModal()">
+                        <i class="fa-solid fa-plus"></i>
+                        Tambah Minggu
+                    </button>
+
+                </div>
+
+                <div id="weeklyList"></div>
+
+            </div>
+
+        </section>
+
+        <!-- DEBTS -->
+
+        <section class="page" id="page-debts">
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>List Nunggak / Utang</h3>
+                        <p>Orang yang belum melunasi kas akan muncul otomatis.</p>
+                    </div>
+
+                </div>
+
+                <div id="debtList"></div>
+
+            </div>
+
+        </section>
+
+        <!-- MONTHLY -->
+
+        <section class="page" id="page-monthly">
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>Rekap Bulanan</h3>
+                        <p>Otomatis terbentuk setelah minggu ke-1 sampai ke-4 lengkap.</p>
+                    </div>
+
+                </div>
+
+                <div id="monthlyList"></div>
+
+            </div>
+
+        </section>
+
+        <!-- EXPENSE -->
+
+        <section class="page" id="page-expenses">
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h3>Pengeluaran</h3>
+                        <p>Catat uang kas yang digunakan untuk kebutuhan tertentu.</p>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="openExpenseModal()">
+                        <i class="fa-solid fa-plus"></i>
+                        Tambah Pengeluaran
+                    </button>
+
+                </div>
+
+                <div id="expenseList"></div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+</div><!-- MODAL --><div class="modal" id="modal"><div class="modal-box">
+
+    <div class="modal-head">
+
+        <h3 id="modalTitle">Tambah Data</h3>
+
+        <button class="close" onclick="closeModal()">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+    </div>
+
+    <div id="modalContent"></div>
+
+</div>
+
+</div><!-- CONFIRM --><div class="modal" id="confirmModal"><div class="modal-box">
+
+    <div class="confirm-icon">
+        <i class="fa-solid fa-trash"></i>
+    </div>
+
+    <h3 id="confirmTitle">Hapus data?</h3>
+
+    <p class="confirm-text" id="confirmText">
+        Data yang dihapus tidak dapat dikembalikan.
+    </p>
+
+    <div class="modal-actions">
+
+        <button class="btn" onclick="closeConfirm()">
+            Batal
+        </button>
+
+        <button class="btn btn-danger" id="confirmYes">
+            <i class="fa-solid fa-trash"></i>
+            Hapus
+        </button>
+
+    </div>
+
+</div>
+
+</div><div class="toast-container" id="toastContainer"></div><script>
+
+/* =========================================
+   AUTH
+========================================= */
+
+const LOGIN_USERNAME = "marawis";
+const LOGIN_PASSWORD = "200122";
+
+const SESSION_KEY = "zhar_kas_session_v4";
+const STORAGE_KEY = "zhar_kas_data_v4";
+
+let data = {
+    weekly: [],
+    debts: [],
+    monthly: [],
+    expenses: [],
+    hiddenMonths: []
+};
+
+let currentPage = "dashboard";
+let confirmCallback = null;
+
+
+/* =========================================
+   INIT
+========================================= */
+
+window.addEventListener("load", () => {
+
+    setTimeout(() => {
+
+        document.getElementById("loader").style.display = "none";
+
+        if(localStorage.getItem(SESSION_KEY) === "true"){
+            showApp();
+        }else{
+            document.getElementById("loginScreen").style.display = "flex";
+        }
+
+    },500);
+
+    loadData();
+
+});
+
+
+/* =========================================
+   LOGIN
+========================================= */
+
+document.getElementById("loginForm").addEventListener("submit", e => {
+
+    e.preventDefault();
+
+    const username =
+        document.getElementById("loginUsername").value.trim();
+
+    const password =
+        document.getElementById("loginPassword").value;
+
+    if(
+        username === LOGIN_USERNAME &&
+        password === LOGIN_PASSWORD
+    ){
+
+        localStorage.setItem(SESSION_KEY,"true");
+
+        showApp();
+
+        toast("Login berhasil");
+
+    }else{
+
+        toast("Username atau password salah","error");
+
+    }
+
+});
+
+
+function showApp(){
+
+    document.getElementById("loginScreen").style.display = "none";
+
+    document.getElementById("app").style.display = "block";
+
+    renderAll();
+
+}
+
+
+/* =========================================
+   LOCAL STORAGE
+========================================= */
+
+function saveData(){
+
+    try{
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(data)
+        );
+
+        const status =
+            document.getElementById("storageText");
+
+        if(status){
+            status.textContent = "Tersimpan otomatis";
+        }
+
+        return true;
+
+    }catch(error){
+
+        console.error(error);
+
+        const status =
+            document.getElementById("storageText");
+
+        if(status){
+            status.textContent = "Gagal menyimpan";
+        }
+
+        toast("Data gagal disimpan ke perangkat","error");
+
+        return false;
+
+    }
+
+}
+
+
+function loadData(){
+
+    try{
+
+        const raw =
+            localStorage.getItem(STORAGE_KEY);
+
+        if(!raw){
+
+            data = {
+                weekly:[],
+                debts:[],
+                monthly:[],
+                expenses:[],
+                hiddenMonths:[]
+            };
+
+            saveData();
+
+            return;
+        }
+
+        const parsed = JSON.parse(raw);
+
+        data = {
+            weekly:Array.isArray(parsed.weekly)
+                ? parsed.weekly : [],
+
+            debts:Array.isArray(parsed.debts)
+                ? parsed.debts : [],
+
+            monthly:Array.isArray(parsed.monthly)
+                ? parsed.monthly : [],
+
+            expenses:Array.isArray(parsed.expenses)
+                ? parsed.expenses : [],
+
+            hiddenMonths:Array.isArray(parsed.hiddenMonths)
+                ? parsed.hiddenMonths : []
+        };
+
+    }catch(error){
+
+        console.error(error);
+
+        data = {
+            weekly:[],
+            debts:[],
+            monthly:[],
+            expenses:[],
+            hiddenMonths:[]
+        };
+
+        toast("Data penyimpanan rusak, dibuat ulang","error");
+
+        saveData();
+
+    }
+
+}
+
+
+function uid(){
+
+    return Date.now().toString(36) +
+        Math.random().toString(36).slice(2);
+
+}
+
+
+/* =========================================
+   HELPERS
+========================================= */
+
+function rupiah(number){
+
+    return new Intl.NumberFormat("id-ID",{
+        style:"currency",
+        currency:"IDR",
+        maximumFractionDigits:0
+    }).format(Number(number) || 0);
+
+}
+
+
+function formatDate(date){
+
+    if(!date) return "-";
+
+    return new Date(date).toLocaleDateString(
+        "id-ID",
+        {
+            day:"2-digit",
+            month:"short",
+            year:"numeric"
+        }
+    );
+
+}
+
+
+function monthLabel(month){
+
+    if(!month) return "-";
+
+    const date = new Date(month + "-01");
+
+    return date.toLocaleDateString(
+        "id-ID",
+        {
+            month:"long",
+            year:"numeric"
+        }
+    );
+
+}
+
+
+function esc(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+const pageNames = {
+    dashboard:"Dashboard",
+    weekly:"Kas Mingguan",
+    debts:"Nunggak / Utang",
+    monthly:"Rekap Bulanan",
+    expenses:"Pengeluaran"
+};
+
+document.querySelectorAll(".nav button").forEach(button => {
+
+    button.addEventListener("click",() => {
+
+        openPage(button.dataset.page);
+
+        document
+            .getElementById("sidebar")
+            .classList.remove("open");
+
+    });
+
+});
+
+
+function openPage(page){
+
+    currentPage = page;
+
+    document.querySelectorAll(".nav button")
+        .forEach(btn => {
+
+            btn.classList.toggle(
+                "active",
+                btn.dataset.page === page
+            );
+
+        });
+
+    document.querySelectorAll(".page")
+        .forEach(section => {
+
+            section.classList.toggle(
+                "active",
+                section.id === "page-" + page
+            );
+
+        });
+
+    document.getElementById("pageTitle").textContent =
+        pageNames[page] || "Dashboard";
+
+    renderAll();
+
+}
+
+
+document.getElementById("menuBtn").addEventListener("click",() => {
+
+    document
+        .getElementById("sidebar")
+        .classList.toggle("open");
+
+});
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+document.getElementById("logoutBtn")
+.addEventListener("click",() => {
+
+    localStorage.removeItem(SESSION_KEY);
+
+    location.reload();
+
+});
+
+
+/* =========================================
+   MODAL
+========================================= */
+
+function openModal(title,html){
+
+    document.getElementById("modalTitle").textContent = title;
+
+    document.getElementById("modalContent").innerHTML = html;
+
+    document.getElementById("modal").classList.add("show");
+
+}
+
+
+function closeModal(){
+
+    document.getElementById("modal").classList.remove("show");
+
+}
+
+
+/* =========================================
+   CONFIRM
+========================================= */
+
+function confirmDelete(title,text,callback){
+
+    document.getElementById("confirmTitle").textContent = title;
+
+    document.getElementById("confirmText").textContent = text;
+
+    confirmCallback = callback;
+
+    document
+        .getElementById("confirmModal")
+        .classList.add("show");
+
+}
+
+
+function closeConfirm(){
+
+    document
+        .getElementById("confirmModal")
+        .classList.remove("show");
+
+    confirmCallback = null;
+
+}
+
+
+document.getElementById("confirmYes")
+.addEventListener("click",() => {
+
+    if(confirmCallback){
+        confirmCallback();
+    }
+
+    closeConfirm();
+
+});
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+function toast(message,type="success"){
+
+    const container =
+        document.getElementById("toastContainer");
+
+    const item =
+        document.createElement("div");
+
+    item.className =
+        "toast " + (type === "error" ? "error" : "");
+
+    item.innerHTML = `
+        <i class="fa-solid ${
+            type === "error"
+            ? "fa-circle-xmark"
+            : "fa-circle-check"
+        }"></i>
+        <span>${esc(message)}</span>
+    `;
+
+    container.appendChild(item);
+
+    setTimeout(() => {
+
+        item.style.opacity = "0";
+
+        setTimeout(() => item.remove(),250);
+
+    },2800);
+
+}
+
+
+/* =========================================
+   WEEKLY MODAL
+========================================= */
+
+function openWeeklyModal(id=null){
+
+    const editing = id !== null;
+
+    const item = editing
+        ? data.weekly.find(x => x.id === id)
+        : null;
+
+    const currentMonth =
+        item?.month || new Date().toISOString().slice(0,7);
+
+    openModal(
+        editing ? "Edit Kas Mingguan" : "Tambah Kas Mingguan",
+
+        `
+        <form onsubmit="saveWeekly(event,'${id || ""}')">
+
+            <div class="form-grid">
+
+                <div class="field full">
+
+                    <label>Nama Kas</label>
+
+                    <input
+                        id="weeklyName"
+                        value="${esc(item?.name || "")}"
+                        placeholder="Contoh: Kas Kelas"
+                        required
+                    >
+
+                </div>
+
+                <div class="field">
+
+                    <label>Bulan Rekap</label>
+
+                    <input
+                        id="weeklyMonth"
+                        type="month"
+                        value="${currentMonth}"
+                        required
+                    >
+
+                </div>
+
+                <div class="field">
+
+                    <label>Minggu Ke</label>
+
+                    <select id="weeklyWeek" required>
+
+                        ${[1,2,3,4].map(n => `
+                            <option
+                                value="${n}"
+                                ${Number(item?.weekNo) === n ? "selected":""}
+                            >
+                                Minggu ke-${n}
+                            </option>
+                        `).join("")}
+
+                    </select>
+
+                </div>
+
+                <div class="field">
+
+                    <label>Nominal Standar</label>
+
+                    <input
+                        id="weeklyStandard"
+                        type="number"
+                        min="0"
+                        value="${item?.standardAmount || ""}"
+                        placeholder="Contoh: 5000"
+                        required
+                    >
+
+                </div>
+
+                <div class="field">
+
+                    <label>Saldo Awal</label>
+
+                    <input
+                        id="weeklyOpening"
+                        type="number"
+                        min="0"
+                        value="${item?.opening || 0}"
+                    >
+
+                </div>
+
+                <div class="field full">
+
+                    <label>Keterangan</label>
+
+                    <textarea
+                        id="weeklyNote"
+                        placeholder="Keterangan tambahan"
+                    >${esc(item?.note || "")}</textarea>            </div>
+
+        </div>
+
+        <div class="modal-actions">
+
+            <button type="button" class="btn" onclick="closeModal()">
+                Batal
+            </button>
+
+            <button class="btn btn-primary" type="submit">
+                <i class="fa-solid fa-floppy-disk"></i>
+                ${editing ? "Simpan Perubahan" : "Simpan Kas"}
+            </button>
+
+        </div>
+
+    </form>
+    `
+);
+
+}
+
+function saveWeekly(event,id){
+
+event.preventDefault();
+
+const name =
+    document.getElementById("weeklyName").value.trim();
+
+const month =
+    document.getElementById("weeklyMonth").value;
+
+const weekNo =
+    Number(document.getElementById("weeklyWeek").value);
+
+const standardAmount =
+    Number(document.getElementById("weeklyStandard").value);
+
+const opening =
+    Number(document.getElementById("weeklyOpening").value) || 0;
+
+const note =
+    document.getElementById("weeklyNote").value.trim();
+
+const duplicate =
+    data.weekly.find(x =>
+        x.month === month &&
+        Number(x.weekNo) === weekNo &&
+        x.id !== id
+    );
+
+if(duplicate){
+
+    toast(
+        "Minggu tersebut sudah ada untuk bulan ini",
+        "error"
+    );
+
+    return;
+}
+
+if(id){
+
+    const item =
+        data.weekly.find(x => x.id === id);
+
+    if(item){
+
+        item.name = name;
+        item.month = month;
+        item.weekNo = weekNo;
+        item.standardAmount = standardAmount;
+        item.opening = opening;
+        item.note = note;
+
+    }
+
+    toast("Kas mingguan berhasil diedit");
+
+}else{
+
+    data.weekly.push({
+
+        id:uid(),
+        name,
+        month,
+        weekNo,
+        standardAmount,
+        opening,
+        note,
+        createdAt:new Date().toISOString(),
+        payments:[]
+
+    });
+
+    toast("Kas mingguan berhasil ditambahkan");
+
+}
+
+saveData();
+
+syncDebts();
+
+autoMonthly();
+
+closeModal();
+
+renderAll();
+
+}
+
+/* =========================================
+PAYMENT MODAL
+========================================= */
+
+function openPaymentModal(weeklyId,paymentId=null){
+
+const week =
+    data.weekly.find(x => x.id === weeklyId);
+
+if(!week) return;
+
+const payment =
+    paymentId
+    ? week.payments.find(x => x.id === paymentId)
+    : null;
+
+const editing = !!payment;
+
+openModal(
+
+    editing
+    ? "Edit Pembayaran"
+    : "Tambah Pembayaran",
+
+    `
+    <form onsubmit="savePayment(event,'${weeklyId}','${paymentId || ""}')">
+
+        <div class="form-grid">
+
+            <div class="field full">
+
+                <label>Nama</label>
+
+                <input
+                    id="paymentName"
+                    value="${esc(payment?.name || "")}"
+                    placeholder="Nama orang"
+                    required
+                >
+
+            </div>
+
+            <div class="field">
+
+                <label>Nominal</label>
+
+                <input
+                    id="paymentAmount"
+                    type="number"
+                    min="0"
+                    value="${payment?.amount || week.standardAmount || ""}"
+                    required
+                >
+
+            </div>
+
+            <div class="field">
+
+                <label>Status</label>
+
+                <select id="paymentStatus">
+
+                    <option
+                        value="lunas"
+                        ${payment?.status === "lunas" ? "selected":""}
+                    >
+                        Lunas
+                    </option>
+
+                    <option
+                        value="utang"
+                        ${payment?.status === "utang" ? "selected":""}
+                    >
+                        Utang
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="field full">
+
+                <label>Keterangan</label>
+
+                <textarea
+                    id="paymentNote"
+                    placeholder="Keterangan pembayaran"
+                >${esc(payment?.note || "")}</textarea>
+
+            </div>
+
+        </div>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn"
+                onclick="closeModal()"
+            >
+                Batal
+            </button>
+
+            <button class="btn btn-primary" type="submit">
+                <i class="fa-solid fa-floppy-disk"></i>
+                ${editing ? "Simpan Perubahan" : "Simpan Pembayaran"}
+            </button>
+
+        </div>
+
+    </form>
+    `
+);
+
+}
+
+function savePayment(event,weeklyId,paymentId){
+
+event.preventDefault();
+
+const week =
+    data.weekly.find(x => x.id === weeklyId);
+
+if(!week) return;
+
+if(!Array.isArray(week.payments)){
+    week.payments = [];
+}
+
+const name =
+    document.getElementById("paymentName").value.trim();
+
+const amount =
+    Number(document.getElementById("paymentAmount").value);
+
+const status =
+    document.getElementById("paymentStatus").value;
+
+const note =
+    document.getElementById("paymentNote").value.trim();
+
+let payment;
+
+if(paymentId){
+
+    payment =
+        week.payments.find(x => x.id === paymentId);
+
+    if(payment){
+
+        payment.name = name;
+        payment.amount = amount;
+        payment.status = status;
+        payment.note = note;
+
+    }
+
+    toast("Pembayaran berhasil diedit");
+
+}else{
+
+    payment = {
+
+        id:uid(),
+        name,
+        amount,
+        status,
+        note,
+        createdAt:new Date().toISOString()
+
+    };
+
+    week.payments.push(payment);
+
+    toast("Pembayaran berhasil ditambahkan");
+
+}
+
+saveData();
+
+syncDebts();
+
+autoMonthly();
+
+closeModal();
+
+renderAll();
+
+}
+
+/* =========================================
+DELETE WEEKLY
+========================================= */
+
+function deleteWeekly(id){
+
+confirmDelete(
+    "Hapus kas mingguan?",
+    "Kas mingguan beserta seluruh pembayaran di dalamnya akan dihapus.",
+    () => {
+
+        data.weekly =
+            data.weekly.filter(x => x.id !== id);
+
+        data.debts =
+            data.debts.filter(x => x.weeklyId !== id);
+
+        saveData();
+
+        autoMonthly();
+
+        renderAll();
+
+        toast("Kas mingguan berhasil dihapus");
+
+    }
+);
+
+}
+
+/* =========================================
+DELETE PAYMENT
+========================================= */
+
+function deletePayment(weeklyId,paymentId){
+
+confirmDelete(
+    "Hapus pembayaran?",
+    "Data pembayaran ini akan dihapus dari kas mingguan.",
+    () => {
+
+        const week =
+            data.weekly.find(x => x.id === weeklyId);
+
+        if(!week) return;
+
+        week.payments =
+            week.payments.filter(
+                x => x.id !== paymentId
+            );
+
+        data.debts =
+            data.debts.filter(
+                x => x.paymentId !== paymentId
+            );
+
+        saveData();
+
+        autoMonthly();
+
+        renderAll();
+
+        toast("Pembayaran berhasil dihapus");
+
+    }
+);
+
+}
+
+/* =========================================
+SYNC DEBT
+========================================= */
+
+function syncDebts(){
+
+const existing =
+    [...data.debts];
+
+const newDebts = [];
+
+data.weekly.forEach(week => {
+
+    (week.payments || []).forEach(payment => {
+
+        if(payment.status === "utang"){
+
+            const old =
+                existing.find(
+                    d => d.paymentId === payment.id
+                );
+
+            newDebts.push({
+
+                id:old?.id || uid(),
+                weeklyId:week.id,
+                paymentId:payment.id,
+                name:payment.name,
+                amount:payment.amount,
+                status:"utang",
+                note:payment.note || "",
+                month:week.month,
+                weekNo:week.weekNo
+
+            });
+
+        }
+
+    });
+
+});
+
+data.debts = newDebts;
+
+saveData();
+
+}
+
+/* =========================================
+DEBT ACTION
+========================================= */
+
+function markDebtPaid(debtId){
+
+const debt =
+    data.debts.find(x => x.id === debtId);
+
+if(!debt) return;
+
+const week =
+    data.weekly.find(x => x.id === debt.weeklyId);
+
+if(week){
+
+    const payment =
+        week.payments.find(
+            x => x.id === debt.paymentId
+        );
+
+    if(payment){
+        payment.status = "lunas";
+    }
+
+}
+
+data.debts =
+    data.debts.filter(x => x.id !== debtId);
+
+saveData();
+
+autoMonthly();
+
+renderAll();
+
+toast("Utang ditandai sebagai lunas");
+
+}
+
+/* =========================================
+EDIT DEBT
+========================================= */
+
+function editDebt(debtId){
+
+const debt =
+    data.debts.find(x => x.id === debtId);
+
+if(!debt) return;
+
+const week =
+    data.weekly.find(x => x.id === debt.weeklyId);
+
+if(!week) return;
+
+openPaymentModal(
+    week.id,
+    debt.paymentId
+);
+
+}
+
+/* =========================================
+DELETE DEBT RECORD
+========================================= */
+
+function deleteDebt(debtId){
+
+confirmDelete(
+    "Hapus data utang?",
+    "Data utang akan dihapus dari daftar. Riwayat pembayaran tetap tersimpan.",
+    () => {
+
+        data.debts =
+            data.debts.filter(
+                x => x.id !== debtId
+            );
+
+        saveData();
+
+        renderAll();
+
+        toast("Data utang dihapus");
+
+    }
+);
+
+}
+
+/* =========================================
+MONTHLY AUTO
+========================================= */
+
+function autoMonthly(){
+
+const months = {};
+
+data.weekly.forEach(week => {
+
+    if(!months[week.month]){
+        months[week.month] = [];
+    }
+
+    months[week.month].push(week);
+
+});
+
+Object.keys(months).forEach(month => {
+
+    const weeks = months[month];
+
+    const complete =
+        [1,2,3,4].every(no =>
+            weeks.some(w =>
+                Number(w.weekNo) === no
+            )
+        );
+
+    if(!complete) return;
+
+    if(data.hiddenMonths.includes(month)) return;
+
+    const totalOpening =
+        weeks.reduce(
+            (sum,w) => sum + Number(w.opening || 0),
+            0
+        );
+
+    const totalPayments =
+        weeks.reduce(
+            (sum,w) =>
+                sum +
+                (w.payments || []).reduce(
+                    (a,p) => a + Number(p.amount || 0),
+                    0
+                ),
+            0
+        );
+
+    const expenses =
+        data.expenses
+        .filter(e => e.date?.slice(0,7) === month)
+        .reduce(
+            (sum,e) => sum + Number(e.amount || 0),
+            0
+        );
+
+    const existing =
+        data.monthly.find(x => x.month === month);
+
+    const record = {
+
+        id:existing?.id || uid(),
+
+        month,
+
+        weekIds:weeks
+            .sort((a,b) => a.weekNo - b.weekNo)
+            .map(w => w.id),
+
+        totalOpening,
+
+        totalPayments,
+
+        expenses,
+
+        net:
+            totalOpening +
+            totalPayments -
+            expenses,
+
+        updatedAt:new Date().toISOString()
+
+    };
+
+    if(existing){
+
+        Object.assign(existing,record);
+
+    }else{
+
+        data.monthly.push(record);
+
+    }
+
+});
+
+data.monthly.sort(
+    (a,b) => b.month.localeCompare(a.month)
+);
+
+if(data.monthly.length > 12){
+
+    data.monthly =
+        data.monthly.slice(0,12);
+
+}
+
+saveData();
+
+}
+
+/* =========================================
+DELETE MONTHLY
+========================================= */
+
+function deleteMonthly(id){
+
+const item =
+    data.monthly.find(x => x.id === id);
+
+if(!item) return;
+
+confirmDelete(
+    "Hapus rekap bulanan?",
+    "Rekap ini akan dihapus. Data kas mingguan tetap aman.",
+    () => {
+
+        data.monthly =
+            data.monthly.filter(x => x.id !== id);
+
+        if(!data.hiddenMonths.includes(item.month)){
+
+            data.hiddenMonths.push(item.month);
+
+        }
+
+        saveData();
+
+        renderAll();
+
+        toast("Rekap bulanan berhasil dihapus");
+
+    }
+);
+
+}
+
+/* =========================================
+EXPENSE MODAL
+========================================= */
+
+function openExpenseModal(id=null){
+
+const editing = id !== null;
+
+const item =
+    editing
+    ? data.expenses.find(x => x.id === id)
+    : null;
+
+openModal(
+
+    editing
+    ? "Edit Pengeluaran"
+    : "Tambah Pengeluaran",
+
+    `
+    <form onsubmit="saveExpense(event,'${id || ""}')">
+
+        <div class="form-grid">
+
+            <div class="field full">
+
+                <label>Nama Pengeluaran</label>
+
+                <input
+                    id="expenseName"
+                    value="${esc(item?.name || "")}"
+                    placeholder="Contoh: Beli alat kebersihan"
+                    required
+                >
+
+            </div>
+
+            <div class="field">
+
+                <label>Nominal</label>
+
+                <input
+                    id="expenseAmount"
+                    type="number"
+                    min="0"
+                    value="${item?.amount || ""}"
+                    required
+                >
+
+            </div>
+
+            <div class="field">
+
+                <label>Tanggal</label>
+
+                <input
+                    id="expenseDate"
+                    type="date"
+                    value="${item?.date || new Date().toISOString().slice(0,10)}"
+                    required
+                >
+
+            </div>
+
+            <div class="field full">
+
+                <label>Keterangan</label>
+
+                <textarea
+                    id="expenseNote"
+                    placeholder="Keterangan pengeluaran"
+                >${esc(item?.note || "")}</textarea>
+
+            </div>
+
+        </div>
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="btn"
+                onclick="closeModal()"
+            >
+                Batal
+            </button>
+
+            <button class="btn btn-primary" type="submit">
+                <i class="fa-solid fa-floppy-disk"></i>
+                ${editing ? "Simpan Perubahan" : "Simpan Pengeluaran"}
+            </button>
+
+        </div>
+
+    </form>
+    `
+);
+
+}
+
+function saveExpense(event,id){
+
+event.preventDefault();
+
+const name =
+    document.getElementById("expenseName").value.trim();
+
+const amount =
+    Number(document.getElementById("expenseAmount").value);
+
+const date =
+    document.getElementById("expenseDate").value;
+
+const note =
+    document.getElementById("expenseNote").value.trim();
+
+if(id){
+
+    const item =
+        data.expenses.find(x => x.id === id);
+
+    if(item){
+
+        item.name = name;
+        item.amount = amount;
+        item.date = date;
+        item.note = note;
+
+    }
+
+    toast("Pengeluaran berhasil diedit");
+
+}else{
+
+    data.expenses.push({
+
+        id:uid(),
+        name,
+        amount,
+        date,
+        note,
+        createdAt:new Date().toISOString()
+
+    });
+
+    toast("Pengeluaran berhasil ditambahkan");
+
+}
+
+saveData();
+
+autoMonthly();
+
+closeModal();
+
+renderAll();
+
+}
+
+/* =========================================
+DELETE EXPENSE
+========================================= */
+
+function deleteExpense(id){
+
+confirmDelete(
+    "Hapus pengeluaran?",
+    "Data pengeluaran ini akan dihapus.",
+    () => {
+
+        data.expenses =
+            data.expenses.filter(
+                x => x.id !== id
+            );
+
+        saveData();
+
+        autoMonthly();
+
+        renderAll();
+
+        toast("Pengeluaran berhasil dihapus");
+
+    }
+);
+
+}
+
+/* =========================================
+RENDER ALL
+========================================= */
+
+function renderAll(){
+
+loadData();
+
+syncDebts();
+
+renderDashboard();
+
+renderWeekly();
+
+renderDebts();
+
+renderMonthly();
+
+renderExpenses();
+
+}
+
+/* =========================================
+DASHBOARD
+========================================= */
+
+function renderDashboard(){
+
+let masuk = 0;
+
+data.weekly.forEach(week => {
+
+    masuk +=
+        (week.payments || []).reduce(
+            (sum,p) => sum + Number(p.amount || 0),
+            0
+        );
+
+});
+
+const utang =
+    data.debts.reduce(
+        (sum,d) => sum + Number(d.amount || 0),
+        0
+    );
+
+const keluar =
+    data.expenses.reduce(
+        (sum,e) => sum + Number(e.amount || 0),
+        0
+    );
+
+const saldo =
+    masuk - keluar;
+
+document.getElementById("statSaldo").textContent =
+    rupiah(saldo);
+
+document.getElementById("statMasuk").textContent =
+    rupiah(masuk);
+
+document.getElementById("statUtang").textContent =
+    rupiah(utang);
+
+document.getElementById("statKeluar").textContent =
+    rupiah(keluar);
+
+document.getElementById("dashWeeks").textContent =
+    data.weekly.length;
+
+document.getElementById("dashMonths").textContent =
+    data.monthly.length;
+
+document.getElementById("dashDebtors").textContent =
+    data.debts.length;
+
+const recent =
+    [...data.weekly]
+    .sort(
+        (a,b) =>
+            new Date(b.createdAt) -
+            new Date(a.createdAt)
+    )
+    .slice(0,3);
+
+const box =
+    document.getElementById("dashboardRecent");
+
+if(!recent.length){
+
+    box.innerHTML = `
+        <div class="empty">
+            <i class="fa-solid fa-folder-open"></i>
+            <p>Belum ada data kas.</p>
+        </div>
+    `;
+
+    return;
+}
+
+box.innerHTML =
+    recent.map(week => {
+
+        const total =
+            (week.payments || [])
+            .reduce(
+                (sum,p) =>
+                    sum + Number(p.amount || 0),
+                0
+            );
+
+        return `
+
+            <div class="summary-box" style="margin-bottom:10px">
+
+                <small>
+                    ${esc(monthLabel(week.month))}
+                    · Minggu ke-${week.weekNo}
+                </small>
+
+                <strong>
+                    ${esc(week.name)}
+                </strong>
+
+                <small>
+                    Total ${rupiah(total)}
+                </small>
+
+            </div>
+
+        `;
+
+    }).join("");
+
+}
+
+/* =========================================
+RENDER WEEKLY
+========================================= */
+
+function renderWeekly(){
+
+const container =
+    document.getElementById("weeklyList");
+
+if(!data.weekly.length){
+
+    container.innerHTML = `
+        <div class="empty">
+            <i class="fa-solid fa-calendar-week"></i>
+            <p>Belum ada kas mingguan.</p>
+        </div>
+    `;
+
+    return;
+}
+
+const sorted =
+    [...data.weekly].sort((a,b) => {
+
+        if(a.month !== b.month){
+            return b.month.localeCompare(a.month);
+        }
+
+        return Number(a.weekNo) - Number(b.weekNo);
+
+    });
+
+container.innerHTML =
+    sorted.map(week => {
+
+        const payments =
+            Array.isArray(week.payments)
+            ? week.payments
+            : [];
+
+        const total =
+            payments.reduce(
+                (sum,p) =>
+                    sum + Number(p.amount || 0),
+                0
+            );
+
+        const lunas =
+            payments.filter(
+                p => p.status === "lunas"
+            ).length;
+
+        const utang =
+            payments.filter(
+                p => p.status === "utang"
+            ).length;
+
+        return `
+
+            <div class="week-card">
+
+                <div class="week-head">
+
+                    <div class="week-title">
+
+                        <div class="week-number">
+                            ${week.weekNo}
+                        </div>
+
+                        <div>
+
+                            <h4>${esc(week.name)}</h4>
+
+                            <small>
+                                ${esc(monthLabel(week.month))}
+                                · Minggu ke-${week.weekNo}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="actions">
+
+                        <button
+                            class="btn btn-warning"
+                            onclick="openWeeklyModal('${week.id}')"
+                        >
+                            <i class="fa-solid fa-pen"></i>
+                            Edit
+                        </button>
+
+                        <button
+                            class="btn btn-danger"
+                            onclick="deleteWeekly('${week.id}')"
+                        >
+                            <i class="fa-solid fa-trash"></i>
+                            Hapus
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="week-body">
+
+                    <div class="week-summary">
+
+                        <div class="summary-box">
+                            <small>Total Masuk</small>
+                            <strong>${rupiah(total)}</strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <small>Lunas</small>
+                            <strong>${lunas} orang</strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <small>Utang</small>
+                            <strong>${utang} orang</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="card-header">
+
+                        <div>
+                            <h3>Daftar Pembayaran</h3>
+                        </div>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="openPaymentModal('${week.id}')"
+                        >
+                            <i class="fa-solid fa-plus"></i>
+                            Tambah Orang
+                        </button>
+
+                    </div>
+
+                    ${
+                        payments.length
+                        ? `
+                            <div class="table-wrap">
+
+                                <table>
+
+                                    <thead>
+
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>Nominal</th>
+                                            <th>Status</th>
+                                            <th>Keterangan</th>
+                                            <th>Aksi</th>
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody>
+
+                                        ${payments.map(p => `
+
+                                            <tr>
+
+                                                <td>${esc(p.name)}</td>
+
+                                                <td>${rupiah(p.amount)}</td>
+
+                                                <td>
+
+                                                    <span class="badge ${
+                                                        p.status === "lunas"
+                                                        ? "badge-lunas"
+                                                        : "badge-utang"
+                                                    }">
+
+                                                        <i class="fa-solid ${
+                                                            p.status === "lunas"
+                                                            ? "fa-check"
+                                                            : "fa-clock"
+                                                        }"></i>
+
+                                                        ${
+                                                            p.status === "lunas"
+                                                            ? "Lunas"
+                                                            : "Utang"
+                                                        }
+
+                                                    </span>
+
+                                                </td>
+
+                                                <td>
+                                                    ${esc(p.note || "-")}
+                                                </td>
+
+                                                <td>
+
+                                                    <div class="actions-cell">
+
+                                                        <button
+                                                            class="icon-btn edit"
+                                                            title="Edit"
+                                                            onclick="openPaymentModal('${week.id}','${p.id}')"
+                                                        >
+                                                            <i class="fa-solid fa-pen"></i>
+                                                        </button>
+
+                                                        <button
+                                                            class="icon-btn delete"
+                                                            title="Hapus"
+                                                            onclick="deletePayment('${week.id}','${p.id}')"
+                                                        >
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </button>
+
+                                                    </div>
+
+                                                </td>
+
+                                            </tr>
+
+                                        `).join("")}
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+                        `
+                        :
+                        `
+                            <div class="empty">
+                                <i class="fa-solid fa-users"></i>
+                                <p>Belum ada pembayaran.</p>
+                            </div>
+                        `
+                    }
+
+                </div>
+
+            </div>
+
+        `;
+
+    }).join("");
+
+}
+
+/* =========================================
+RENDER DEBTS
+========================================= */
+
+function renderDebts(){
+
+const container =
+    document.getElementById("debtList");
+
+if(!data.debts.length){
+
+    container.innerHTML = `
+        <div class="empty">
+            <i class="fa-solid fa-circle-check"></i>
+            <p>Tidak ada orang yang sedang memiliki utang.</p>
+        </div>
+    `;
+
+    return;
+}
+
+container.innerHTML = `
+
+    <div class="table-wrap">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Nama</th>
+                    <th>Nominal</th>
+                    <th>Bulan</th>
+                    <th>Minggu</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${data.debts.map(debt => `
+
+                    <tr>
+
+                        <td>${esc(debt.name)}</td>
+
+                        <td>${rupiah(debt.amount)}</td>
+
+                        <td>${esc(monthLabel(debt.month))}</td>
+
+                        <td>Minggu ke-${debt.weekNo}</td>
+
+                        <td>
+
+                            <span class="badge badge-utang">
+                                <i class="fa-solid fa-clock"></i>
+                                Utang
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <div class="actions-cell">
+
+                                <button
+                                    class="icon-btn edit"
+                                    title="Edit"
+                                    onclick="editDebt('${debt.id}')"
+                                >
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+
+                                <button
+                                    class="icon-btn success"
+                                    title="Tandai Lunas"
+                                    onclick="markDebtPaid('${debt.id}')"
+                                >
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+
+                                <button
+                                    class="icon-btn delete"
+                                    title="Hapus"
+                                    onclick="deleteDebt('${debt.id}')"
+                                >
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                `).join("")}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+`;
+
+}
+
+/* =========================================
+RENDER MONTHLY
+========================================= */
+
+function renderMonthly(){
+
+const container =
+    document.getElementById("monthlyList");
+
+if(!data.monthly.length){
+
+    container.innerHTML = `
+        <div class="empty">
+            <i class="fa-solid fa-calendar-days"></i>
+            <p>Belum ada rekap bulanan. Lengkapi minggu ke-1 sampai ke-4.</p>
+        </div>
+    `;
+
+    return;
+}
+
+container.innerHTML =
+    data.monthly.map(item => {
+
+        const weeks =
+            item.weekIds
+            .map(id =>
+                data.weekly.find(w => w.id === id)
+            )
+            .filter(Boolean);
+
+        return `
+
+            <div class="week-card">
+
+                <div class="week-head">
+
+                    <div class="week-title">
+
+                        <div class="week-number">
+                            <i class="fa-solid fa-calendar"></i>
+                        </div>
+
+                        <div>
+
+                            <h4>
+                                ${esc(monthLabel(item.month))}
+                            </h4>
+
+                            <small>
+                                Rekap 4 minggu
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="actions">
+
+                        <button
+                            class="btn btn-warning"
+                            onclick="editMonthly('${item.id}')"
+                        >
+                            <i class="fa-solid fa-pen"></i>
+                            Edit
+                        </button>
+
+                        <button
+                            class="btn btn-danger"
+                            onclick="deleteMonthly('${item.id}')"
+                        >
+                            <i class="fa-solid fa-trash"></i>
+                            Hapus
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="week-body">
+
+                    <div class="week-summary">
+
+                        <div class="summary-box">
+                            <small>Saldo Awal</small>
+                            <strong>${rupiah(item.totalOpening)}</strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <small>Total Kas</small>
+                            <strong>${rupiah(item.totalPayments)}</strong>
+                        </div>
+
+                        <div class="summary-box">
+                            <small>Pengeluaran</small>
+                            <strong>${rupiah(item.expenses)}</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="summary-box">
+
+                        <small>
+                            Saldo Bersih
+                        </small>
+
+                        <strong style="font-size:18px">
+                            ${rupiah(item.net)}
+                        </strong>
+
+                    </div>
+
+                    <div style="margin-top:12px">
+
+                        <small style="color:#64748b">
+                            Minggu:
+                        </small>
+
+                        ${weeks.map(w => `
+
+                            <span class="badge badge-lunas" style="margin:3px">
+
+                                <i class="fa-solid fa-check"></i>
+
+                                Minggu ke-${w.weekNo}
+
+                            </span>
+
+                        `).join("")}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }).join("");
+
+}
+
+/* =========================================
+EDIT MONTHLY
+========================================= */
+
+function editMonthly(id){
+
+const item =
+    data.monthly.find(x => x.id === id);
+
+if(!item) return;
+
+const newMonth =
+    prompt(
+        "Edit bulan rekap (format YYYY-MM):",
+        item.month
+    );
+
+if(!newMonth) return;
+
+if(!/^\d{4}-\d{2}$/.test(newMonth)){
+
+    toast(
+        "Format bulan harus YYYY-MM",
+        "error"
+    );
+
+    return;
+}
+
+item.month = newMonth;
+
+saveData();
+
+renderAll();
+
+toast("Rekap bulanan berhasil diedit");
+
+}
+
+/* =========================================
+RENDER EXPENSES
+========================================= */
+
+function renderExpenses(){
+
+const container =
+    document.getElementById("expenseList");
+
+if(!data.expenses.length){
+
+    container.innerHTML = `
+        <div class="empty">
+            <i class="fa-solid fa-receipt"></i>
+            <p>Belum ada pengeluaran.</p>
+        </div>
+    `;
+
+    return;
+}
+
+const total =
+    data.expenses.reduce(
+        (sum,e) => sum + Number(e.amount || 0),
+        0
+    );
+
+container.innerHTML = `
+
+    <div class="summary-box" style="margin-bottom:18px">
+
+        <small>Total Semua Pengeluaran</small>
+
+        <strong style="font-size:20px">
+            ${rupiah(total)}
+        </strong>
+
+    </div>
+
+    <div class="table-wrap">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Nama</th>
+                    <th>Nominal</th>
+                    <th>Tanggal</th>
+                    <th>Keterangan</th>
+                    <th>Aksi</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${data.expenses.map(item => `
+
+                    <tr>
+
+                        <td>${esc(item.name)}</td>
+
+                        <td>${rupiah(item.amount)}</td>
+
+                        <td>${formatDate(item.date)}</td>
+
+                        <td>${esc(item.note || "-")}</td>
+
+                        <td>
+
+                            <div class="actions-cell">
+
+                                <button
+                                    class="icon-btn edit"
+                                    title="Edit"
+                                    onclick="openExpenseModal('${item.id}')"
+                                >
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+
+                                <button
+                                    class="icon-btn delete"
+                                    title="Hapus"
+                                    onclick="deleteExpense('${item.id}')"
+                                >
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                `).join("")}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+`;
+
+}
+
+/* =========================================
+CLOSE MODAL OUTSIDE
+========================================= */
+
+document.getElementById("modal")
+.addEventListener("click",e => {
+
+if(e.target.id === "modal"){
+    closeModal();
+}
+
+});
+
+document.getElementById("confirmModal")
+.addEventListener("click",e => {
+
+if(e.target.id === "confirmModal"){
+    closeConfirm();
+}
+
+});
+
+/* =========================================
+BEFORE LEAVE
+========================================= */
+
+window.addEventListener("beforeunload",() => {
+
+saveData();
+
+});
+
+</script></body>
+</html>
