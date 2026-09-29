@@ -143,7 +143,7 @@ button{
     animation:up .5s ease;
 }
 
-.logo{
+.logo img{
     width:65px;
     height:65px;
     border-radius:20px;
@@ -316,7 +316,7 @@ input[type="file"]::file-selector-button{
     border-bottom:1px solid var(--border);
 }
 
-.brand-logo{
+.brand-logo img{
     width:42px;
     height:42px;
     border-radius:13px;
@@ -1088,6 +1088,73 @@ td{
         width:calc(100vw - 36px);
     }
 }
+
+/* =========================
+   BRIGHT THEME OVERRIDE
+   ========================= */
+:root{
+    --bg:#f4f7fb;
+    --card:#ffffff;
+    --card2:#f8fafc;
+    --input:#ffffff;
+    --border:#dbe3ee;
+    --text:#172033;
+    --muted:#64748b;
+    --primary:#2563eb;
+    --primary2:#4f46e5;
+    --green:#16a34a;
+    --red:#dc2626;
+    --yellow:#d97706;
+    --shadow:0 14px 35px rgba(15,23,42,.08);
+}
+body{
+    background:
+        radial-gradient(circle at top left,rgba(59,130,246,.10),transparent 35%),
+        radial-gradient(circle at bottom right,rgba(99,102,241,.08),transparent 35%),
+        var(--bg);
+    color:var(--text);
+}
+.loader{background:#f4f7fb;color:var(--text)}
+.login-card,.stat,.card,.modal-box,.toast{
+    background:rgba(255,255,255,.94);
+    border-color:var(--border);
+    box-shadow:var(--shadow);
+}
+.sidebar{
+    background:rgba(255,255,255,.96);
+    border-right-color:var(--border);
+}
+.topbar{
+    background:rgba(255,255,255,.88);
+    border-bottom-color:var(--border);
+}
+.nav button{color:#64748b}
+.nav button:hover,.nav button.active{
+    background:rgba(37,99,235,.09);
+    color:#2563eb;
+}
+input,select,textarea{
+    background:#fff;
+    color:#172033;
+    border-color:#dbe3ee;
+}
+input::placeholder,textarea::placeholder{color:#94a3b8}
+input[type="file"]::file-selector-button{
+    background:#eaf0f8;
+    color:#334155;
+}
+.btn{background:#e8eef7;color:#334155}
+.icon-btn,.close,.image-close{background:#e8eef7;color:#475569}
+.table-wrap th{color:#64748b}
+td{color:#334155}
+.week-head{background:#f8fafc}
+.summary-box,.photo-upload{background:#f8fafc;border-color:#dbe3ee}
+.storage-status{color:#16a34a}
+.toast{color:#172033}
+.modal{background:rgba(15,23,42,.42)}
+.image-viewer{background:rgba(15,23,42,.78)}
+.overlay{background:rgba(15,23,42,.28)!important}
+
 </style>
 </head>
 
@@ -1114,7 +1181,7 @@ td{
     <div class="login-card">
 
         <div class="logo">
-            <i class="fa-solid fa-wallet"></i>
+            <img src="https://i.imgur.com/LN58u6Q.jpeg">
         </div>
 
         <h1>Rekap Kas</h1>
@@ -1210,7 +1277,7 @@ td{
         <div class="brand">
 
             <div class="brand-logo">
-                <i class="fa-solid fa-wallet"></i>
+                <img src="https://i.imgur.com/LN58u6Q.jpeg">
             </div>
 
             <div>
@@ -2833,10 +2900,8 @@ function openWeeklyModal(id=null){
 
                     <input
                         id="weeklyName"
-                        value="${esc(
-                            item?.name || ""
-                        )}"
-                        placeholder="Contoh: Kas Kelas"
+                        value="Al-Shababu Islamiah"
+                        readonly
                         required
                     >
 
@@ -3124,6 +3189,64 @@ function saveWeekly(event,id){
 }
 
 
+function getMemberOptions(selectedName="") {
+
+    const names = [
+        "Pahri",
+        "Pikri",
+        "Ibet",
+        "Teguh",
+        "Arya",
+        "Repan",
+        "Alya",
+        "Bule",
+        "Abil",
+        "Queen",
+        "Kalisa",
+        "Bajil",
+        "Kahfi",
+        "Yudist",
+        "Hasbi",
+        "Entong",
+        "Haikal",
+        "Jihan",
+        "Zalfan",
+        "Ulin",
+        "Alisa",
+        "Liyana",
+        "Lidia",
+        "Derian"
+    ];
+
+    if(selectedName){
+        names.push(String(selectedName).trim());
+    }
+
+    const uniqueNames = [
+        ...new Set(names)
+    ];
+
+    const options = uniqueNames
+        .sort((a,b) => a.localeCompare(b,"id"))
+        .map(name => `
+            <option
+                value="${esc(name)}"
+                ${name === selectedName ? "selected" : ""}
+            >
+                ${esc(name)}
+            </option>
+        `)
+        .join("");
+
+    return `
+        <option value="" ${selectedName ? "" : "selected"} disabled>
+            Pilih nama anggota
+        </option>
+        ${options}
+    `;
+  }
+
+
 /* =========================================================
    PAYMENT MODAL
 ========================================================= */
@@ -3189,14 +3312,12 @@ function openPaymentModal(
                         Nama
                     </label>
 
-                    <input
+                    <select
                         id="paymentName"
-                        value="${esc(
-                            payment?.name || ""
-                        )}"
-                        placeholder="Nama orang"
                         required
                     >
+                        ${getMemberOptions(payment?.name || "")}
+                    </select>
 
                 </div>
 
