@@ -2129,6 +2129,11 @@ function normalizeData(){
             week.payments = [];
         }
 
+        if(typeof week.standardAmount !== "number"){
+            week.standardAmount =
+                Number(week.standardAmount || 0);
+        }
+
     });
 
 }
@@ -3212,7 +3217,6 @@ function getMemberOptions(selectedName="") {
         "Jihan",
         "Zalfan",
         "Ulin",
-        "Alisa",
         "Liyana",
         "Lidia",
         "Derian"
@@ -3245,6 +3249,171 @@ function getMemberOptions(selectedName="") {
         ${options}
     `;
   }
+
+
+/* =========================================================
+   KURANG SALDO / TARGET KAS
+========================================================= */
+
+function getExpectedMembers(){
+    const select = getMemberOptions("")
+        .replace(/<option[\s\S]*?<\/option>/g, "");
+    return [
+        "Pahri",
+        "Pikri",
+        "Ibet",
+        "Teguh",
+        "Arya",
+        "Repan",
+        "Alya",
+        "Bule",
+        "Abil",
+        "Queen",
+        "Kalisa",
+        "Bajil",
+        "Kahfi",
+        "Yudist",
+        "Hasbi",
+        "Entong",
+        "Haikal",
+        "Jihan",
+        "Zalfan",
+        "Ulin",
+        "Liyana",
+        "Lidia",
+        "Derian"
+    ];
+}
+
+function getWeeklyShortfall(week){
+    const standard = Number(week.standardAmount || 0);
+    const members = getExpectedMembers();
+    const target = standard * members.length;
+
+    const payments = Array.isArray(week.payments)
+        ? week.payments
+        : [];
+
+    const paidByName = {};
+    payments.forEach(payment => {
+        const name = String(payment.name || "").trim();
+        if(!name) return;
+        paidByName[name] = (paidByName[name] || 0) +
+            Number(payment.amount || 0);
+    });
+
+    const unpaid = members.map(name => {
+        const paid = Number(paidByName[name] || 0);
+        const kurang = Math.max(standard - paid, 0);
+
+        return {
+            name,
+            paid,
+            kurang
+        };
+    }).filter(item => item.kurang > 0);
+
+    const totalCollected = payments.reduce(
+        (sum,payment) => sum + Number(payment.amount || 0),
+        0
+    );
+
+    return {
+        target,
+        totalCollected,
+        kurangSaldo: Math.max(target - totalCollected, 0),
+        unpaid
+    };
+}
+
+function getMonthlyShortfall(item){
+    const weeks = (item.weekIds || [])
+        .map(id => data.weekly.find(week => week.id === id))
+        .filter(Boolean);
+
+    const expected = getExpectedMembers();
+    const byName = {};
+    let target = 0;
+    let collected = 0;
+
+    weeks.forEach(week => {
+        const standard = Number(week.standardAmount || 0);
+        target += standard * expected.length;
+
+        const payments = Array.isArray(week.payments)
+            ? week.payments
+            : [];
+
+        payments.forEach(payment => {
+            collected += Number(payment.amount || 0);
+
+            const name = String(payment.name || "").trim();
+            if(!name) return;
+
+            if(!byName[name]){
+                byName[name] = {
+                    name,
+                    kurang: 0,
+                    minggu: []
+                };
+            }
+
+            const paid = Number(payment.amount || 0);
+            const currentWeekKurang = Math.max(standard - paid, 0);
+
+            if(currentWeekKurang > 0){
+                byName[name].kurang += currentWeekKurang;
+                byName[name].minggu.push(
+                    Number(week.weekNo || 0)
+                );
+            }
+        });
+
+        // Anggota yang tidak mempunyai pembayaran sama sekali pada minggu ini.
+        expected.forEach(name => {
+            const paid = payments
+                .filter(payment =>
+                    String(payment.name || "").trim() === name
+                )
+                .reduce(
+                    (sum,payment) =>
+                        sum + Number(payment.amount || 0),
+                    0
+                );
+
+            const currentWeekKurang = Math.max(standard - paid, 0);
+
+            if(currentWeekKurang > 0){
+                if(!byName[name]){
+                    byName[name] = {
+                        name,
+                        kurang: 0,
+                        minggu: []
+                    };
+                }
+
+                // Hindari double count untuk nama yang sudah diproses di atas.
+                const alreadyAdded = byName[name].minggu.includes(
+                    Number(week.weekNo || 0)
+                );
+
+                if(!alreadyAdded){
+                    byName[name].kurang += currentWeekKurang;
+                    byName[name].minggu.push(
+                        Number(week.weekNo || 0)
+                    );
+                }
+            }
+        });
+    });
+
+    return {
+        target,
+        collected,
+        kurangSaldo: Math.max(target - collected, 0),
+        unpaid: Object.values(byName).filter(item => item.kurang > 0)
+    };
+}
 
 
 /* =========================================================
@@ -5477,6 +5646,80 @@ function renderWeekly(){
 
                             </div>
 
+                            ${
+                                (() => {
+                                    const shortfall = getWeeklyShortfall(week);
+
+                                    return `
+                                        <div
+                                            class="summary-box"
+                                            style="margin-bottom:15px;border-color:${
+                                                shortfall.kurangSaldo > 0
+                                                ? "rgba(239,68,68,.35)"
+                                                : "rgba(34,197,94,.35)"
+                                            };"
+                                        >
+                                            <small>
+                                                Target Kas Minggu Ini
+                                            </small>
+
+                                            <strong>
+                                                ${rupiah(shortfall.target)}
+                                            </strong>
+
+                                            <small
+                                                style="display:block;margin-top:7px;"
+                                            >
+                                                Terkumpul:
+                                                ${rupiah(shortfall.totalCollected)}
+                                            </small>
+
+                                            <strong
+                                                style="margin-top:5px;color:${
+                                                    shortfall.kurangSaldo > 0
+                                                    ? "#dc2626"
+                                                    : "#16a34a"
+                                                };"
+                                            >
+                                                ${
+                                                    shortfall.kurangSaldo > 0
+                                                    ? `Kurang ${rupiah(shortfall.kurangSaldo)}`
+                                                    : "Target sudah terpenuhi"
+                                                }
+                                            </strong>
+
+                                            ${
+                                                shortfall.unpaid.length
+                                                ? `
+                                                    <div style="margin-top:10px;">
+                                                        <small>
+                                                            Belum bayar / masih kurang:
+                                                        </small>
+
+                                                        <div style="margin-top:5px;">
+                                                            ${
+                                                                shortfall.unpaid
+                                                                .map(person => `
+                                                                    <span
+                                                                        class="badge badge-utang"
+                                                                        style="margin:3px 3px 3px 0;"
+                                                                    >
+                                                                        ${esc(person.name)}
+                                                                        · kurang ${rupiah(person.kurang)}
+                                                                    </span>
+                                                                `)
+                                                                .join("")
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                `
+                                                : ""
+                                            }
+                                        </div>
+                                    `;
+                                })()
+                            }
+
 
                             <div class="card-header">
 
@@ -6102,6 +6345,81 @@ function renderMonthly(){
                                 </strong>
 
                             </div>
+
+
+                            ${
+                                (() => {
+                                    const shortfall = getMonthlyShortfall(item);
+
+                                    return `
+                                        <div
+                                            class="summary-box"
+                                            style="margin-top:12px;border-color:${
+                                                shortfall.kurangSaldo > 0
+                                                ? "rgba(239,68,68,.35)"
+                                                : "rgba(34,197,94,.35)"
+                                            };"
+                                        >
+                                            <small>
+                                                Target Kas Bulan Ini
+                                            </small>
+
+                                            <strong>
+                                                ${rupiah(shortfall.target)}
+                                            </strong>
+
+                                            <small
+                                                style="display:block;margin-top:7px;"
+                                            >
+                                                Terkumpul:
+                                                ${rupiah(shortfall.collected)}
+                                            </small>
+
+                                            <strong
+                                                style="margin-top:5px;color:${
+                                                    shortfall.kurangSaldo > 0
+                                                    ? "#dc2626"
+                                                    : "#16a34a"
+                                                };"
+                                            >
+                                                ${
+                                                    shortfall.kurangSaldo > 0
+                                                    ? `Kurang ${rupiah(shortfall.kurangSaldo)}`
+                                                    : "Target sudah terpenuhi"
+                                                }
+                                            </strong>
+
+                                            ${
+                                                shortfall.unpaid.length
+                                                ? `
+                                                    <div style="margin-top:10px;">
+                                                        <small>
+                                                            Yang belum lunas:
+                                                        </small>
+
+                                                        <div style="margin-top:5px;">
+                                                            ${
+                                                                shortfall.unpaid
+                                                                .map(person => `
+                                                                    <span
+                                                                        class="badge badge-utang"
+                                                                        style="margin:3px 3px 3px 0;"
+                                                                    >
+                                                                        ${esc(person.name)}
+                                                                        · kurang ${rupiah(person.kurang)}
+                                                                    </span>
+                                                                `)
+                                                                .join("")
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                `
+                                                : ""
+                                            }
+                                        </div>
+                                    `;
+                                })()
+                            }
 
 
                             <div
